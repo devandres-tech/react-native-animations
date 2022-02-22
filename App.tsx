@@ -2,8 +2,8 @@
 // Illustrations by: SAMji https://dribbble.com/SAMji_illustrator
 
 import * as React from 'react'
-import { Carousel } from './animations'
+import { List } from './animations'
 
 export default () => {
-  return <Carousel />
+  return <List />
 }

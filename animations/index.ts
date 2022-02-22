@@ -1,3 +1,5 @@
 import Carousel from './Carousel'
+import List from './List'
+import Gallery from './Gallery'
 
-export { Carousel }
+export { Carousel, List, Gallery }

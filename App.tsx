@@ -2,8 +2,8 @@
 // Illustrations by: SAMji https://dribbble.com/SAMji_illustrator
 
 import * as React from 'react'
-import { List } from './animations'
+import { Gallery } from './animations'
 
 export default () => {
-  return <List />
+  return <Gallery />
 }

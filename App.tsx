@@ -2,8 +2,8 @@
 // Illustrations by: SAMji https://dribbble.com/SAMji_illustrator
 
 import * as React from 'react'
-import { Drawer } from './animations'
+import { CarouselB } from './animations'
 
 export default () => {
-  return <Drawer />
+  return <CarouselB />
 }

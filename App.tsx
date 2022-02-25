@@ -2,8 +2,8 @@
 // Illustrations by: SAMji https://dribbble.com/SAMji_illustrator
 
 import * as React from 'react'
-import { CarouselB } from './animations'
+import { MovieSlider } from './animations'
 
 export default () => {
-  return <CarouselB />
+  return <MovieSlider />
 }

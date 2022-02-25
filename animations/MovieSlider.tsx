@@ -1,7 +1,3 @@
-/**
- * Inspiration: https://dribbble.com/shots/8257559-Movie-2-0
- *
- */
 import * as React from 'react'
 import {
   StatusBar,
@@ -20,6 +16,10 @@ import { getMovies } from '../utils/api'
 import Genres from '../utils/genres'
 import Rating from '../utils/rating'
 import LinearGradient from 'react-native-linear-gradient'
+import MaskedView from '@react-native-community/masked-view'
+import Svg, { Rect } from 'react-native-svg'
+
+const AnimatedSvg = Animated.createAnimatedComponent(Svg)
 
 const SPACING = 10
 const ITEM_SIZE = Platform.OS === 'ios' ? width * 0.72 : width * 0.74
@@ -32,12 +32,64 @@ const Loading = () => (
   </View>
 )
 
+const Backdrop = ({ movies, scrollX }) => {
+  return (
+    <View style={{ position: 'absolute', width, height: BACKDROP_HEIGHT }}>
+      <FlatList
+        data={movies}
+        keyExtractor={(item) => item.key}
+        renderItem={({ item, index }) => {
+          if (!item.backdrop) {
+            return null
+          }
+          const inputRange = [(index - 2) * ITEM_SIZE, (index - 1) * ITEM_SIZE]
+          const translateX = scrollX.interpolate({
+            inputRange,
+            outputRange: [-width, 0],
+          })
+          return (
+            <MaskedView
+              maskElement={
+                <AnimatedSvg
+                  width={width}
+                  height={height}
+                  viewBox={`0 0 ${width} ${height}`}
+                  style={{ transform: [{ translateX }] }}
+                >
+                  <Rect x='0' y='0' width={width} height={height} fill='red' />
+                </AnimatedSvg>
+              }
+              style={{ position: 'absolute' }}
+            >
+              <Image
+                source={{ uri: item.backdrop }}
+                style={{ width, height: BACKDROP_HEIGHT, resizeMode: 'cover' }}
+              />
+              <LinearGradient
+                style={{
+                  width,
+                  height: BACKDROP_HEIGHT,
+                  position: 'absolute',
+                  bottom: 0,
+                }}
+                colors={['transparent', 'white']}
+              />
+            </MaskedView>
+          )
+        }}
+      />
+    </View>
+  )
+}
+
 export default () => {
   const [movies, setMovies] = React.useState([])
+  const scrollX = React.useRef(new Animated.Value(0)).current
+
   React.useEffect(() => {
     const fetchData = async () => {
       const movies = await getMovies()
-      setMovies(movies)
+      setMovies([{ key: 'left-spacer' }, ...movies, { key: 'right-spacer' }])
     }
 
     if (movies.length === 0) {
@@ -52,7 +104,8 @@ export default () => {
   return (
     <View style={styles.container}>
       <StatusBar hidden />
-      <FlatList
+      <Backdrop movies={movies} scrollX={scrollX} />
+      <Animated.FlatList
         showsHorizontalScrollIndicator={false}
         data={movies}
         keyExtractor={(item) => item.key}
@@ -61,16 +114,36 @@ export default () => {
         snapToInterval={ITEM_SIZE}
         decelerationRate={0}
         bounces={false}
+        scrollEventThrottle={16}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          {
+            useNativeDriver: true,
+          }
+        )}
         renderItem={({ item, index }) => {
+          if (!item.poster) {
+            return <View style={{ width: EMPTY_ITEM_SIZE }} />
+          }
+          const inputRange = [
+            (index - 2) * ITEM_SIZE,
+            (index - 1) * ITEM_SIZE,
+            index * ITEM_SIZE,
+          ]
+          const translateY = scrollX.interpolate({
+            inputRange,
+            outputRange: [100, 50, 100],
+          })
           return (
             <View style={{ width: ITEM_SIZE }}>
-              <View
+              <Animated.View
                 style={{
                   marginHorizontal: SPACING,
                   padding: SPACING * 2,
                   alignItems: 'center',
                   backgroundColor: 'white',
                   borderRadius: 34,
+                  transform: [{ translateY }],
                 }}
               >
                 <Image
@@ -85,7 +158,7 @@ export default () => {
                 <Text style={{ fontSize: 12 }} numberOfLines={3}>
                   {item.description}
                 </Text>
-              </View>
+              </Animated.View>
             </View>
           )
         }}

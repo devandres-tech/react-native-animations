@@ -99,16 +99,94 @@ const ConnectButton = React.memo(({ onPress }) => {
   )
 })
 
+const List = React.forwardRef(
+  ({ color, showText, style, onScroll, onItemIndexChange }, ref) => {
+    return (
+      <Animated.FlatList
+        snapToInterval={ITEM_HEIGHT}
+        ref={ref}
+        style={style}
+        decelerationRate={'fast'}
+        bounces={false}
+        scrollEnabled={!showText}
+        scrollEventThrottle={16}
+        onScroll={onScroll}
+        contentContainerStyle={{
+          paddingTop: showText ? 0 : height / 2 - ITEM_HEIGHT / 2,
+          paddingBottom: showText ? 0 : height / 2 - ITEM_HEIGHT / 2,
+          paddingHorizontal: 20,
+        }}
+        data={data}
+        keyExtractor={(item) => `${item.name}-${item.icon}`}
+        renderItem={({ item }) => {
+          return <Item {...item} color={colors.color} showText={showText} />
+        }}
+        onMomentumScrollEnd={(ev) => {
+          const newIndex = Math.round(
+            ev.nativeEvent.contentOffset.y / ITEM_HEIGHT
+          )
+
+          if (onItemIndexChange) {
+            onItemIndexChange(newIndex)
+          }
+        }}
+      />
+    )
+  }
+)
+
 export default () => {
   const [index, setIndex] = React.useState(0)
   const onConnectPress = React.useCallback(() => {
     Alert.alert('Connect with:', data[index].name.toUpperCase())
   }, [index])
+  const yellowRef = React.useRef()
+  const darkRef = React.useRef()
+  const scrollY = React.useRef(new Animated.Value(0)).current
+  const onScroll = Animated.event(
+    [
+      {
+        nativeEvent: { contentOffset: { y: scrollY } },
+      },
+    ],
+    { useNativeDriver: true }
+  )
+  const onItemIndexChange = React.useCallback(setIndex, [])
+
+  React.useEffect(() => {
+    scrollY.addListener((v) => {
+      if (darkRef?.current) {
+        darkRef.current.scrollToOffset({
+          offset: v.value,
+          animated: false,
+        })
+      }
+    })
+  }, [])
 
   return (
     <View style={styles.container}>
       <StatusBar hidden />
       <ConnectWithText />
+      <List
+        ref={yellowRef}
+        color={colors.yellow}
+        style={StyleSheet.absoluteFillObject}
+        onScroll={onScroll}
+        onItemIndexChange={onItemIndexChange}
+      />
+      <List
+        ref={darkRef}
+        color={colors.dark}
+        showText={true}
+        style={{
+          position: 'absolute',
+          backgroundColor: colors.yellow,
+          width,
+          height: ITEM_HEIGHT,
+          top: height / 2 - ITEM_HEIGHT / 2,
+        }}
+      />
       <ConnectButton onPress={onConnectPress} />
       <Item />
     </View>

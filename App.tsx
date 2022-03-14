@@ -2,8 +2,8 @@
 // Illustrations by: SAMji https://dribbble.com/SAMji_illustrator
 
 import * as React from 'react'
-import { Picker } from './animations'
+import { Picker, NavigationAnim } from './animations'
 
 export default () => {
-  return <Picker />
+  return <NavigationAnim />
 }

@@ -2,8 +2,8 @@
 // Illustrations by: SAMji https://dribbble.com/SAMji_illustrator
 
 import * as React from 'react'
-import { Picker, NavigationAnim } from './animations'
+import { BottomSheet } from './animations'
 
 export default () => {
-  return <NavigationAnim />
+  return <BottomSheet />
 }

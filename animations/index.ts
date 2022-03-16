@@ -7,8 +7,10 @@ import MovieSlider from './MovieSlider'
 import CarouselC from './CarouselC'
 import Picker from './Picker'
 import NavigationAnim from './NavigationAnim'
+import BottomSheet from './BottomSheet'
 
 export {
+  BottomSheet,
   NavigationAnim,
   Carousel,
   List,
